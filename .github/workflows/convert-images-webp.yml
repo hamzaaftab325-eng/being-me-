@@ -1,0 +1,140 @@
+name: Convert images to WebP
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check pillow
+
+      - name: Convert all image wrappers to WebP
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import base64
+          import io
+          import re
+          from PIL import Image
+
+          images_dir = Path("images")
+          converted = []
+
+          for svg_path in sorted(images_dir.glob("*.svg")):
+              svg = svg_path.read_text(encoding="utf-8")
+
+              match = re.search(
+                  r'href=["\']data:(image/[^;]+);base64,([^"\']+)["\']',
+                  svg,
+                  flags=re.I | re.S,
+              )
+
+              if not match:
+                  raise RuntimeError(
+                      f"No embedded raster image found in {svg_path}"
+                  )
+
+              source_bytes = base64.b64decode(
+                  re.sub(r"\s+", "", match.group(2))
+              )
+
+              with Image.open(io.BytesIO(source_bytes)) as image:
+                  image.load()
+
+                  output = svg_path.with_suffix(".webp")
+
+                  if "A" in image.getbands():
+                      image.save(
+                          output,
+                          "WEBP",
+                          lossless=True,
+                          method=6,
+                      )
+                  else:
+                      image.save(
+                          output,
+                          "WEBP",
+                          quality=86,
+                          method=6,
+                      )
+
+              svg_path.unlink()
+              converted.append(output.as_posix())
+
+          text_files = [
+              Path("index.html"),
+              Path("css/styles.css"),
+              Path("js/script.js"),
+          ]
+
+          for file_path in text_files:
+              if not file_path.exists():
+                  continue
+
+              text = file_path.read_text(encoding="utf-8")
+              text = re.sub(
+                  r'(images/[A-Za-z0-9._-]+)\.svg\b',
+                  r'\1.webp',
+                  text,
+              )
+              file_path.write_text(text, encoding="utf-8")
+
+          workflow = Path(
+              ".github/workflows/convert-images-webp.yml"
+          )
+          if workflow.exists():
+              workflow.unlink()
+
+          remaining_svg = list(images_dir.glob("*.svg"))
+          if remaining_svg:
+              raise RuntimeError(
+                  "SVG image files remain: "
+                  + ", ".join(str(p) for p in remaining_svg)
+              )
+
+          refs = Path("index.html").read_text(encoding="utf-8")
+          if re.search(r'images/[^"\']+\.svg', refs):
+              raise RuntimeError(
+                  "index.html still contains SVG image references"
+              )
+
+          print(f"Converted {len(converted)} images:")
+          for path in converted:
+              print(" -", path)
+          PY
+
+      - name: Commit WebP conversion
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No image changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Convert all website images to WebP"
+          git push origin HEAD:main
