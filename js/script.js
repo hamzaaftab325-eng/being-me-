@@ -12,6 +12,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (hero) {
 
+    /* Remove the date line from the hero metadata. */
+    var heroDate = hero.querySelector('.hero__when');
+    if (heroDate) {
+      heroDate.remove();
+    }
+
     var reduce =
       window.matchMedia &&
       window.matchMedia(
@@ -212,16 +218,24 @@ document.addEventListener('DOMContentLoaded', function () {
     var built = buildHeroFx();
 
     if (built) {
+      var mobileParticles =
+        window.matchMedia &&
+        window.matchMedia('(max-width: 720px)').matches;
+
+      /* Keep desktop density unchanged; use a cleaner mobile particle field. */
+      var swirlCount = mobileParticles ? 34 : 170;
+      var fastCount = mobileParticles ? 8 : 50;
+
       swirlFx = makeParticles(
         built.swirl,
-        170,
+        swirlCount,
         ['#a57c52', '#f4c78a', '#3e2a1a'],
         { swirl: true, size: [1, 3] }
       );
 
       fastFx = makeParticles(
         built.fast,
-        50,
+        fastCount,
         ['#a57c52'],
         { speed: 1.4, size: [1, 2] }
       );
