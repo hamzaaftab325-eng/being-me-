@@ -120,8 +120,9 @@
 
   /* ---------- hero ---------- */
   .hero{padding:0;position:relative}
-  .hero__art{position:relative;max-width:1440px;margin:0 auto}
-  .hero__art img{width:100%}
+  .hero__art{position:relative;width:100%;max-width:none;margin:0;overflow:hidden}
+  .hero__art picture{display:block;width:100%}
+  .hero__art img{display:block;width:100%;max-width:none;height:auto;object-fit:cover;object-position:center center}
   .hero__meta{
     position:relative;
     margin-top:clamp(.5rem,1.5vw,1.25rem);
@@ -777,25 +778,5 @@
 
   #top .hero__fx {
     display: none !important;
-  }
-}
-
-/* ==========================================================
-   MOBILE HERO CLEANUP
-   Hide the baked 10 · 25 · 26 date from the mobile artwork
-   without changing the desktop hero image.
-========================================================== */
-@media (max-width:720px) {
-  #top .hero__art picture {
-    display:block;
-    width:100%;
-    aspect-ratio:820 / 790;
-    overflow:hidden;
-  }
-
-  #top .hero__art picture > img {
-    display:block;
-    width:100%;
-    height:auto;
   }
 }
