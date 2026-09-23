@@ -152,6 +152,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
+      function setCount(newCount) {
+        newCount = Math.max(0, Number(newCount) || 0);
+
+        if (count === newCount) {
+          return;
+        }
+
+        count = newCount;
+        seed();
+      }
+
       function tick() {
         if (!alive) {
           return;
@@ -211,18 +222,46 @@ document.addEventListener('DOMContentLoaded', function () {
         resize: function () {
           resize();
           seed();
+        },
+        setCount: function (newCount) {
+          setCount(newCount);
         }
       };
+    }
+
+    var particleMedia =
+      window.matchMedia
+        ? window.matchMedia('(max-width: 720px)')
+        : null;
+
+    function isMobileParticleMode() {
+      return particleMedia
+        ? particleMedia.matches
+        : window.innerWidth <= 720;
+    }
+
+    function syncParticleDensity() {
+      var mobileParticles = isMobileParticleMode();
+
+      if (swirlFx && swirlFx.setCount) {
+        swirlFx.setCount(
+          mobileParticles ? 34 : 170
+        );
+      }
+
+      if (fastFx && fastFx.setCount) {
+        fastFx.setCount(
+          mobileParticles ? 8 : 50
+        );
+      }
     }
 
     var built = buildHeroFx();
 
     if (built) {
-      var mobileParticles =
-        window.matchMedia &&
-        window.matchMedia('(max-width: 720px)').matches;
+      var mobileParticles = isMobileParticleMode();
 
-      /* Keep desktop density unchanged; use a cleaner mobile particle field. */
+      /* Mobile stays light; desktop/tablet always restore full density. */
       var swirlCount = mobileParticles ? 34 : 170;
       var fastCount = mobileParticles ? 8 : 50;
 
@@ -239,6 +278,19 @@ document.addEventListener('DOMContentLoaded', function () {
         ['#a57c52'],
         { speed: 1.4, size: [1, 2] }
       );
+    }
+
+    if (particleMedia) {
+      if (particleMedia.addEventListener) {
+        particleMedia.addEventListener(
+          'change',
+          syncParticleDensity
+        );
+      } else if (particleMedia.addListener) {
+        particleMedia.addListener(
+          syncParticleDensity
+        );
+      }
     }
 
     hero.classList.add('bm-new-ready');
@@ -363,6 +415,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (fastFx) {
           fastFx.resize();
         }
+
+        /* Re-apply the correct density after viewport changes. */
+        syncParticleDensity();
       }
     );
 
