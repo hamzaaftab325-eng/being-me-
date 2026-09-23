@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "https://survey.being-me.org/*"
+  to = "https://forms.gle/ygE8Msov5Ht6WKDbA"
+  status = 301
+  force = true
