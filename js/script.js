@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (swirlFx) {
         if (swirlFx.setCount) {
           swirlFx.setCount(
-            mobileParticles ? 22 : 170
+            mobileParticles ? 26 : 170
           );
         }
 
@@ -291,10 +291,10 @@ document.addEventListener('DOMContentLoaded', function () {
           swirlFx.setOptions(
             mobileParticles
               ? {
-                  size: [0.65, 1.55],
-                  alpha: [0.10, 0.34],
-                  drift: 0.16,
-                  swirlAmp: 0.28
+                  size: [1.15, 2.55],
+                  alpha: [0.16, 0.46],
+                  drift: 0.18,
+                  swirlAmp: 0.34
                 }
               : {
                   size: [1, 3],
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (fastFx) {
         if (fastFx.setCount) {
           fastFx.setCount(
-            mobileParticles ? 3 : 50
+            mobileParticles ? 4 : 50
           );
         }
 
@@ -317,9 +317,9 @@ document.addEventListener('DOMContentLoaded', function () {
           fastFx.setOptions(
             mobileParticles
               ? {
-                  speed: 0.55,
-                  size: [0.55, 1.05],
-                  alpha: [0.10, 0.26]
+                  speed: 0.62,
+                  size: [0.95, 1.65],
+                  alpha: [0.14, 0.38]
                 }
               : {
                   speed: 1.4,
@@ -337,8 +337,8 @@ document.addEventListener('DOMContentLoaded', function () {
       var mobileParticles = isMobileParticleMode();
 
       /* Mobile uses subtle cinematic dust; desktop keeps the fuller field. */
-      var swirlCount = mobileParticles ? 22 : 170;
-      var fastCount = mobileParticles ? 3 : 50;
+      var swirlCount = mobileParticles ? 26 : 170;
+      var fastCount = mobileParticles ? 4 : 50;
 
       swirlFx = makeParticles(
         built.swirl,
@@ -347,10 +347,10 @@ document.addEventListener('DOMContentLoaded', function () {
         mobileParticles
           ? {
               swirl: true,
-              size: [0.65, 1.55],
-              alpha: [0.10, 0.34],
-              drift: 0.16,
-              swirlAmp: 0.28
+              size: [1.15, 2.55],
+              alpha: [0.16, 0.46],
+              drift: 0.18,
+              swirlAmp: 0.34
             }
           : {
               swirl: true,
@@ -367,9 +367,9 @@ document.addEventListener('DOMContentLoaded', function () {
         ['#a57c52'],
         mobileParticles
           ? {
-              speed: 0.55,
-              size: [0.55, 1.05],
-              alpha: [0.10, 0.26]
+              speed: 0.62,
+              size: [0.95, 1.65],
+              alpha: [0.14, 0.38]
             }
           : {
               speed: 1.4,
