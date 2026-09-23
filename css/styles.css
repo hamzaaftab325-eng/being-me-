@@ -779,3 +779,23 @@
     display: none !important;
   }
 }
+
+/* ==========================================================
+   MOBILE HERO CLEANUP
+   Hide the baked 10 · 25 · 26 date from the mobile artwork
+   without changing the desktop hero image.
+========================================================== */
+@media (max-width:720px) {
+  #top .hero__art picture {
+    display:block;
+    width:100%;
+    aspect-ratio:820 / 790;
+    overflow:hidden;
+  }
+
+  #top .hero__art picture > img {
+    display:block;
+    width:100%;
+    height:auto;
+  }
+}
