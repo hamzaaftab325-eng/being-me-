@@ -133,15 +133,30 @@ document.addEventListener('DOMContentLoaded', function () {
           x: Math.random() * w,
           y: Math.random() * h,
           r: rand(opts.size[0], opts.size[1]),
-          a: rand(0.15, 0.8),
+          a: rand(
+            opts.alpha ? opts.alpha[0] : 0.15,
+            opts.alpha ? opts.alpha[1] : 0.8
+          ),
           phase: Math.random() * Math.PI * 2,
           color: pick(colors),
           vx: opts.swirl
-            ? rand(-0.5, 0.5)
-            : rand(-opts.speed * 0.5, opts.speed * 0.5),
+            ? rand(
+                -(opts.drift || 0.5),
+                (opts.drift || 0.5)
+              )
+            : rand(
+                -opts.speed * 0.5,
+                opts.speed * 0.5
+              ),
           vy: opts.swirl
-            ? rand(-0.5, 0.5)
-            : rand(opts.speed * 0.4, opts.speed)
+            ? rand(
+                -(opts.drift || 0.5),
+                (opts.drift || 0.5)
+              )
+            : rand(
+                opts.speed * 0.4,
+                opts.speed
+              )
         };
       }
 
@@ -163,6 +178,20 @@ document.addEventListener('DOMContentLoaded', function () {
         seed();
       }
 
+      function setOptions(newOptions) {
+        if (!newOptions) {
+          return;
+        }
+
+        Object.keys(newOptions).forEach(
+          function (key) {
+            opts[key] = newOptions[key];
+          }
+        );
+
+        seed();
+      }
+
       function tick() {
         if (!alive) {
           return;
@@ -175,8 +204,13 @@ document.addEventListener('DOMContentLoaded', function () {
           var p = particles[i];
 
           if (opts.swirl) {
-            p.x += Math.cos(t + p.phase) * 0.7 + p.vx;
-            p.y += Math.sin(t + p.phase) * 0.7 + p.vy;
+            var swirlAmp =
+              typeof opts.swirlAmp === 'number'
+                ? opts.swirlAmp
+                : 0.7;
+
+            p.x += Math.cos(t + p.phase) * swirlAmp + p.vx;
+            p.y += Math.sin(t + p.phase) * swirlAmp + p.vy;
           } else {
             p.x += p.vx;
             p.y += p.vy;
@@ -225,6 +259,9 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         setCount: function (newCount) {
           setCount(newCount);
+        },
+        setOptions: function (newOptions) {
+          setOptions(newOptions);
         }
       };
     }
@@ -243,16 +280,54 @@ document.addEventListener('DOMContentLoaded', function () {
     function syncParticleDensity() {
       var mobileParticles = isMobileParticleMode();
 
-      if (swirlFx && swirlFx.setCount) {
-        swirlFx.setCount(
-          mobileParticles ? 34 : 170
-        );
+      if (swirlFx) {
+        if (swirlFx.setCount) {
+          swirlFx.setCount(
+            mobileParticles ? 22 : 170
+          );
+        }
+
+        if (swirlFx.setOptions) {
+          swirlFx.setOptions(
+            mobileParticles
+              ? {
+                  size: [0.65, 1.55],
+                  alpha: [0.10, 0.34],
+                  drift: 0.16,
+                  swirlAmp: 0.28
+                }
+              : {
+                  size: [1, 3],
+                  alpha: [0.15, 0.8],
+                  drift: 0.5,
+                  swirlAmp: 0.7
+                }
+          );
+        }
       }
 
-      if (fastFx && fastFx.setCount) {
-        fastFx.setCount(
-          mobileParticles ? 8 : 50
-        );
+      if (fastFx) {
+        if (fastFx.setCount) {
+          fastFx.setCount(
+            mobileParticles ? 3 : 50
+          );
+        }
+
+        if (fastFx.setOptions) {
+          fastFx.setOptions(
+            mobileParticles
+              ? {
+                  speed: 0.55,
+                  size: [0.55, 1.05],
+                  alpha: [0.10, 0.26]
+                }
+              : {
+                  speed: 1.4,
+                  size: [1, 2],
+                  alpha: [0.15, 0.8]
+                }
+          );
+        }
       }
     }
 
@@ -261,22 +336,46 @@ document.addEventListener('DOMContentLoaded', function () {
     if (built) {
       var mobileParticles = isMobileParticleMode();
 
-      /* Mobile stays light; desktop/tablet always restore full density. */
-      var swirlCount = mobileParticles ? 34 : 170;
-      var fastCount = mobileParticles ? 8 : 50;
+      /* Mobile uses subtle cinematic dust; desktop keeps the fuller field. */
+      var swirlCount = mobileParticles ? 22 : 170;
+      var fastCount = mobileParticles ? 3 : 50;
 
       swirlFx = makeParticles(
         built.swirl,
         swirlCount,
         ['#a57c52', '#f4c78a', '#3e2a1a'],
-        { swirl: true, size: [1, 3] }
+        mobileParticles
+          ? {
+              swirl: true,
+              size: [0.65, 1.55],
+              alpha: [0.10, 0.34],
+              drift: 0.16,
+              swirlAmp: 0.28
+            }
+          : {
+              swirl: true,
+              size: [1, 3],
+              alpha: [0.15, 0.8],
+              drift: 0.5,
+              swirlAmp: 0.7
+            }
       );
 
       fastFx = makeParticles(
         built.fast,
         fastCount,
         ['#a57c52'],
-        { speed: 1.4, size: [1, 2] }
+        mobileParticles
+          ? {
+              speed: 0.55,
+              size: [0.55, 1.05],
+              alpha: [0.10, 0.26]
+            }
+          : {
+              speed: 1.4,
+              size: [1, 2],
+              alpha: [0.15, 0.8]
+            }
       );
     }
 
