@@ -133,30 +133,15 @@ document.addEventListener('DOMContentLoaded', function () {
           x: Math.random() * w,
           y: Math.random() * h,
           r: rand(opts.size[0], opts.size[1]),
-          a: rand(
-            opts.alpha ? opts.alpha[0] : 0.15,
-            opts.alpha ? opts.alpha[1] : 0.8
-          ),
+          a: rand(0.15, 0.8),
           phase: Math.random() * Math.PI * 2,
           color: pick(colors),
           vx: opts.swirl
-            ? rand(
-                -(opts.drift || 0.5),
-                (opts.drift || 0.5)
-              )
-            : rand(
-                -opts.speed * 0.5,
-                opts.speed * 0.5
-              ),
+            ? rand(-0.5, 0.5)
+            : rand(-opts.speed * 0.5, opts.speed * 0.5),
           vy: opts.swirl
-            ? rand(
-                -(opts.drift || 0.5),
-                (opts.drift || 0.5)
-              )
-            : rand(
-                opts.speed * 0.4,
-                opts.speed
-              )
+            ? rand(-0.5, 0.5)
+            : rand(opts.speed * 0.4, opts.speed)
         };
       }
 
@@ -165,31 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
         for (var i = 0; i < count; i++) {
           particles.push(create());
         }
-      }
-
-      function setCount(newCount) {
-        newCount = Math.max(0, Number(newCount) || 0);
-
-        if (count === newCount) {
-          return;
-        }
-
-        count = newCount;
-        seed();
-      }
-
-      function setOptions(newOptions) {
-        if (!newOptions) {
-          return;
-        }
-
-        Object.keys(newOptions).forEach(
-          function (key) {
-            opts[key] = newOptions[key];
-          }
-        );
-
-        seed();
       }
 
       function tick() {
@@ -204,13 +164,8 @@ document.addEventListener('DOMContentLoaded', function () {
           var p = particles[i];
 
           if (opts.swirl) {
-            var swirlAmp =
-              typeof opts.swirlAmp === 'number'
-                ? opts.swirlAmp
-                : 0.7;
-
-            p.x += Math.cos(t + p.phase) * swirlAmp + p.vx;
-            p.y += Math.sin(t + p.phase) * swirlAmp + p.vy;
+            p.x += Math.cos(t + p.phase) * 0.7 + p.vx;
+            p.y += Math.sin(t + p.phase) * 0.7 + p.vy;
           } else {
             p.x += p.vx;
             p.y += p.vy;
@@ -256,140 +211,26 @@ document.addEventListener('DOMContentLoaded', function () {
         resize: function () {
           resize();
           seed();
-        },
-        setCount: function (newCount) {
-          setCount(newCount);
-        },
-        setOptions: function (newOptions) {
-          setOptions(newOptions);
         }
       };
-    }
-
-    var particleMedia =
-      window.matchMedia
-        ? window.matchMedia('(max-width: 720px)')
-        : null;
-
-    function isMobileParticleMode() {
-      return particleMedia
-        ? particleMedia.matches
-        : window.innerWidth <= 720;
-    }
-
-    function syncParticleDensity() {
-      var mobileParticles = isMobileParticleMode();
-
-      if (swirlFx) {
-        if (swirlFx.setCount) {
-          swirlFx.setCount(
-            mobileParticles ? 26 : 170
-          );
-        }
-
-        if (swirlFx.setOptions) {
-          swirlFx.setOptions(
-            mobileParticles
-              ? {
-                  size: [1.15, 2.55],
-                  alpha: [0.16, 0.46],
-                  drift: 0.18,
-                  swirlAmp: 0.34
-                }
-              : {
-                  size: [1, 3],
-                  alpha: [0.15, 0.8],
-                  drift: 0.5,
-                  swirlAmp: 0.7
-                }
-          );
-        }
-      }
-
-      if (fastFx) {
-        if (fastFx.setCount) {
-          fastFx.setCount(
-            mobileParticles ? 4 : 50
-          );
-        }
-
-        if (fastFx.setOptions) {
-          fastFx.setOptions(
-            mobileParticles
-              ? {
-                  speed: 0.62,
-                  size: [0.95, 1.65],
-                  alpha: [0.14, 0.38]
-                }
-              : {
-                  speed: 1.4,
-                  size: [1, 2],
-                  alpha: [0.15, 0.8]
-                }
-          );
-        }
-      }
     }
 
     var built = buildHeroFx();
 
     if (built) {
-      var mobileParticles = isMobileParticleMode();
-
-      /* Mobile uses subtle cinematic dust; desktop keeps the fuller field. */
-      var swirlCount = mobileParticles ? 26 : 170;
-      var fastCount = mobileParticles ? 4 : 50;
-
       swirlFx = makeParticles(
         built.swirl,
-        swirlCount,
+        170,
         ['#a57c52', '#f4c78a', '#3e2a1a'],
-        mobileParticles
-          ? {
-              swirl: true,
-              size: [1.15, 2.55],
-              alpha: [0.16, 0.46],
-              drift: 0.18,
-              swirlAmp: 0.34
-            }
-          : {
-              swirl: true,
-              size: [1, 3],
-              alpha: [0.15, 0.8],
-              drift: 0.5,
-              swirlAmp: 0.7
-            }
+        { swirl: true, size: [1, 3] }
       );
 
       fastFx = makeParticles(
         built.fast,
-        fastCount,
+        50,
         ['#a57c52'],
-        mobileParticles
-          ? {
-              speed: 0.62,
-              size: [0.95, 1.65],
-              alpha: [0.14, 0.38]
-            }
-          : {
-              speed: 1.4,
-              size: [1, 2],
-              alpha: [0.15, 0.8]
-            }
+        { speed: 1.4, size: [1, 2] }
       );
-    }
-
-    if (particleMedia) {
-      if (particleMedia.addEventListener) {
-        particleMedia.addEventListener(
-          'change',
-          syncParticleDensity
-        );
-      } else if (particleMedia.addListener) {
-        particleMedia.addListener(
-          syncParticleDensity
-        );
-      }
     }
 
     hero.classList.add('bm-new-ready');
@@ -515,8 +356,6 @@ document.addEventListener('DOMContentLoaded', function () {
           fastFx.resize();
         }
 
-        /* Re-apply the correct density after viewport changes. */
-        syncParticleDensity();
       }
     );
 
