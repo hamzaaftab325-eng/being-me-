@@ -1,0 +1,7 @@
+Approved Being ME 2026 v4 package
+Source: being-me-2026-conference-v4.html
+Visual/layout/style values: preserved
+Approved animation JS: preserved
+Images: external WebP assets
+Meta Pixel: 398575847557538
+Netlify survey redirect: preserved
