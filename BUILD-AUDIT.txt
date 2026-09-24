@@ -1,7 +1,35 @@
-Approved Being ME 2026 v4 package
-Source: being-me-2026-conference-v4.html
-Visual/layout/style values: preserved
-Approved animation JS: preserved
-Images: external WebP assets
-Meta Pixel: 398575847557538
-Netlify survey redirect: preserved
+Being ME 2026 — Final Production Checkpoint
+Branch: main
+
+Core files
+- index.html
+- css/styles.css
+- js/hero-animation.js
+- js/script.js
+- netlify.toml
+
+Assets
+- images/being-me-logo.webp
+- images/hero-desktop.webp
+- images/hero-mobile.webp
+- images/session-room.webp
+- images/speaker-taimiyyah-zubair.webp
+- images/speaker-eaman-attia.webp
+- images/speaker-lobna-mulla.webp
+- images/speaker-rania-awaad.webp
+- images/women-conference.webp
+- images/marketplace.webp
+- images/save-the-date-poster.webp
+- images/attendees-notes.webp
+- images/being-me-2026-social-thumbnail.png
+
+Production notes
+- Approved v4 layout/content preserved
+- Custom hero animation preserved
+- Hero image is full width
+- Mobile hero WebP asset is valid
+- Phone CTAs are full width
+- Tablet CTAs keep natural width
+- Meta Pixel ID: 398575847557538
+- Social preview metadata configured
+- Netlify survey redirect preserved
