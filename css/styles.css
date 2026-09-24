@@ -959,3 +959,9 @@
     display: none !important;
   }
 }
+
+/* Hero animation isolation: preserve v4 layout and prevent double animation. */
+.bm-motion #top.hero .hero__art,
+.bm-motion #top.hero .hero__meta {
+  animation: none;
+}
