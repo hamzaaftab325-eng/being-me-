@@ -480,6 +480,10 @@
   .linkish:hover{color:var(--gold)}
   .reg__venue{margin:1.2rem 0 0;font-size:.92rem;line-height:1.5;color:var(--cream)}
   .register__cta{display:flex;flex-wrap:wrap;gap:.75rem;margin:1.6rem 0 1.4rem}
+  @media (max-width:820px){
+    .register__cta{flex-direction:column;align-items:stretch}
+    .register__cta .btn{display:block;width:100%;text-align:center}
+  }
   .share{font-size:.88rem;color:#9C907C}
   .share a{color:var(--sand)}
   @media (max-width:820px){
