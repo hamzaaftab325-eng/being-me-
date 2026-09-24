@@ -584,13 +584,7 @@
     footer{padding-block:2rem 1.25rem}
   }
 
-  /* ---------- one orchestrated load moment ---------- */
-  @keyframes settle{from{opacity:0;transform:scale(1.035)}to{opacity:1;transform:none}}
-  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-  .hero__art{animation:settle 1.5s cubic-bezier(.2,.75,.2,1) both}
-  .hero__meta{animation:rise 1s ease .75s both}
   @media (prefers-reduced-motion:reduce){
-    .hero__art,.hero__meta{animation:none}
     *{transition:none!important}
   }
 
@@ -777,7 +771,7 @@
 }
 
 /* ----------------------------------------------------------
-   EXISTING HERO META
+   HERO META — staggered upward reveal
 ---------------------------------------------------------- */
 
 .bm-motion #top.hero.bm-new-playing .hero__when {
@@ -790,14 +784,24 @@
     bmHeroMetaIn .82s cubic-bezier(.2,.7,.2,1) 1.16s both;
 }
 
-.bm-motion #top.hero.bm-new-playing .hero__cta {
+.bm-motion #top.hero.bm-new-playing .hero__venue {
   animation:
     bmHeroMetaIn .82s cubic-bezier(.2,.7,.2,1) 1.30s both;
 }
 
-.bm-motion #top.hero.bm-new-playing .hero__note {
+.bm-motion #top.hero.bm-new-playing .hero__audience {
   animation:
     bmHeroMetaIn .82s cubic-bezier(.2,.7,.2,1) 1.44s both;
+}
+
+.bm-motion #top.hero.bm-new-playing .hero__cta {
+  animation:
+    bmHeroMetaIn .82s cubic-bezier(.2,.7,.2,1) 1.58s both;
+}
+
+.bm-motion #top.hero.bm-new-playing .hero__note {
+  animation:
+    bmHeroMetaIn .82s cubic-bezier(.2,.7,.2,1) 1.72s both;
 }
 
 /* ----------------------------------------------------------
@@ -960,8 +964,3 @@
   }
 }
 
-/* Hero animation isolation: preserve v4 layout and prevent double animation. */
-.bm-motion #top.hero .hero__art,
-.bm-motion #top.hero .hero__meta {
-  animation: none;
-}

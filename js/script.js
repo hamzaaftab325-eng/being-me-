@@ -22,7 +22,7 @@
       'DTSTART;TZID=America/Toronto:20261025T090000',
       'DTEND;TZID=America/Toronto:20261025T210000',
       'SUMMARY:Being ME 2026 Toronto Conference - A Life by His Design',
-      'LOCATION:Toronto, ON',
+      'LOCATION:Grand Victorian Convention Centre, 175 Derry Road E, Mississauga, ON L5T 2Z7',
       'DESCRIPTION:Registration and full details at https://attendbm.com/',
       'END:VEVENT','END:VCALENDAR'
     ].join('\r\n');
