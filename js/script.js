@@ -1,4 +1,10 @@
 
+  var outlineButtonUrl = 'https://www.tickettailor.com/events/beingme/2431057';
+
+  document.querySelectorAll('a.btn--quiet').forEach(function (link) {
+    link.href = outlineButtonUrl;
+  });
+
   var folds = document.querySelectorAll('details');
   window.addEventListener('beforeprint', function () {
     folds.forEach(function (d) { d.dataset.was = d.open ? '1' : '0'; d.open = true; });
