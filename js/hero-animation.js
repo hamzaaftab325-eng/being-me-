@@ -1,0 +1,392 @@
+/* Add this immediately so the hero can be armed before the page paints */
+document.documentElement.classList.add('bm-motion');
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ==========================================================
+     HERO ANIMATION
+     SHUTTER + PREVIOUS ZOOM + BLUR + SAND PARTICLES
+   ========================================================== */
+
+  var hero = document.getElementById('top');
+
+  if (hero) {
+
+    var reduce =
+      window.matchMedia &&
+      window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+
+    var heroPlayed = false;
+    var heroTimer = null;
+    var swirlFx = null;
+    var fastFx = null;
+
+    hero.classList.remove(
+      'is-armed',
+      'is-playing',
+      'is-done',
+      'bm-new-playing',
+      'bm-new-done'
+    );
+
+    function buildHeroFx() {
+
+      var heroArt =
+        hero.querySelector(
+          '.hero__art'
+        );
+
+      if (!heroArt) {
+        return;
+      }
+
+      var existing =
+        heroArt.querySelector(
+          '.hero__fx'
+        );
+
+      if (existing) {
+        existing.remove();
+      }
+
+      var fx = document.createElement('div');
+      fx.className = 'hero__fx';
+      fx.setAttribute('aria-hidden', 'true');
+
+      var grade = document.createElement('div');
+      grade.className = 'hero__grade';
+
+      var swirl = document.createElement('canvas');
+      swirl.className = 'hero__swirl';
+
+      var fast = document.createElement('canvas');
+      fast.className = 'hero__fast';
+
+      var devilA = document.createElement('div');
+      devilA.className = 'hero__devil hero__devil--a';
+
+      var devilB = document.createElement('div');
+      devilB.className = 'hero__devil hero__devil--b';
+
+      var streak = document.createElement('div');
+      streak.className = 'hero__streak';
+
+      var vignette = document.createElement('div');
+      vignette.className = 'hero__vignette';
+
+      fx.appendChild(grade);
+      fx.appendChild(swirl);
+      fx.appendChild(fast);
+      fx.appendChild(devilA);
+      fx.appendChild(devilB);
+      fx.appendChild(streak);
+      fx.appendChild(vignette);
+
+      heroArt.appendChild(fx);
+
+      return {
+        fx: fx,
+        swirl: swirl,
+        fast: fast
+      };
+    }
+
+    function makeParticles(canvas, count, colors, opts) {
+
+      if (!canvas || !canvas.getContext) {
+        return null;
+      }
+
+      var ctx = canvas.getContext('2d');
+      var w = 0;
+      var h = 0;
+      var particles = [];
+      var t = 0;
+      var raf = null;
+      var alive = false;
+
+      function rand(a, b) {
+        return a + Math.random() * (b - a);
+      }
+
+      function pick(arr) {
+        return arr[
+          Math.floor(Math.random() * arr.length)
+        ];
+      }
+
+      function resize() {
+        w = canvas.width = canvas.offsetWidth || canvas.clientWidth;
+        h = canvas.height = canvas.offsetHeight || canvas.clientHeight;
+      }
+
+      function create() {
+        return {
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: rand(opts.size[0], opts.size[1]),
+          a: rand(0.15, 0.8),
+          phase: Math.random() * Math.PI * 2,
+          color: pick(colors),
+          vx: opts.swirl
+            ? rand(-0.5, 0.5)
+            : rand(-opts.speed * 0.5, opts.speed * 0.5),
+          vy: opts.swirl
+            ? rand(-0.5, 0.5)
+            : rand(opts.speed * 0.4, opts.speed)
+        };
+      }
+
+      function seed() {
+        particles = [];
+        for (var i = 0; i < count; i++) {
+          particles.push(create());
+        }
+      }
+
+      function tick() {
+        if (!alive) {
+          return;
+        }
+
+        t += 0.016;
+        ctx.clearRect(0, 0, w, h);
+
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+
+          if (opts.swirl) {
+            p.x += Math.cos(t + p.phase) * 0.7 + p.vx;
+            p.y += Math.sin(t + p.phase) * 0.7 + p.vy;
+          } else {
+            p.x += p.vx;
+            p.y += p.vy;
+          }
+
+          if (p.y < -40) p.y = h + 40;
+          if (p.y > h + 40) p.y = -40;
+          if (p.x < -40) p.x = w + 40;
+          if (p.x > w + 40) p.x = -40;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.max(0, p.a);
+          ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+        raf = requestAnimationFrame(tick);
+      }
+
+      resize();
+      seed();
+
+      return {
+        start: function () {
+          if (alive || reduce) {
+            return;
+          }
+          alive = true;
+          tick();
+        },
+        stop: function () {
+          alive = false;
+          if (raf) {
+            cancelAnimationFrame(raf);
+            raf = null;
+          }
+          if (ctx) {
+            ctx.clearRect(0, 0, w, h);
+          }
+        },
+        resize: function () {
+          resize();
+          seed();
+        }
+      };
+    }
+
+    var built = buildHeroFx();
+
+    if (built) {
+      swirlFx = makeParticles(
+        built.swirl,
+        170,
+        ['#a57c52', '#f4c78a', '#3e2a1a'],
+        { swirl: true, size: [1, 3] }
+      );
+
+      fastFx = makeParticles(
+        built.fast,
+        50,
+        ['#a57c52'],
+        { speed: 1.4, size: [1, 2] }
+      );
+    }
+
+    hero.classList.add('bm-new-ready');
+
+    function finishNewHero() {
+
+      clearTimeout(heroTimer);
+
+      hero.classList.remove(
+        'bm-new-ready',
+        'bm-new-playing'
+      );
+
+      hero.classList.add(
+        'bm-new-done'
+      );
+
+      if (swirlFx) {
+        swirlFx.start();
+      }
+
+      if (fastFx) {
+        fastFx.start();
+      }
+
+    }
+
+    function playNewHero() {
+
+      if (heroPlayed) {
+        return;
+      }
+
+      heroPlayed = true;
+
+      if (reduce) {
+        finishNewHero();
+        return;
+      }
+
+      hero.classList.remove(
+        'bm-new-done'
+      );
+
+      hero.classList.add(
+        'bm-new-ready'
+      );
+
+      void hero.offsetWidth;
+
+      requestAnimationFrame(
+        function () {
+
+          requestAnimationFrame(
+            function () {
+
+              hero.classList.remove(
+                'bm-new-ready'
+              );
+
+              hero.classList.add(
+                'bm-new-playing'
+              );
+
+              if (swirlFx) {
+                swirlFx.start();
+              }
+
+              if (fastFx) {
+                fastFx.start();
+              }
+
+              heroTimer =
+                window.setTimeout(
+                  finishNewHero,
+                  3200
+                );
+
+            }
+          );
+
+        }
+      );
+
+    }
+
+    var heroImage =
+      hero.querySelector(
+        '.hero__art img'
+      );
+
+    if (
+      heroImage &&
+      !heroImage.complete
+    ) {
+
+      heroImage.addEventListener(
+        'load',
+        playNewHero,
+        { once: true }
+      );
+
+      window.setTimeout(
+        playNewHero,
+        900
+      );
+
+    }
+
+    else {
+
+      playNewHero();
+
+    }
+
+    window.addEventListener(
+      'resize',
+      function () {
+        if (swirlFx) {
+          swirlFx.resize();
+        }
+        if (fastFx) {
+          fastFx.resize();
+        }
+
+      }
+    );
+
+    document.addEventListener(
+      'visibilitychange',
+      function () {
+        if (document.hidden) {
+          if (swirlFx) {
+            swirlFx.stop();
+          }
+          if (fastFx) {
+            fastFx.stop();
+          }
+        } else if (hero.classList.contains('bm-new-playing') || hero.classList.contains('bm-new-done')) {
+          if (swirlFx) {
+            swirlFx.start();
+          }
+          if (fastFx) {
+            fastFx.start();
+          }
+        }
+      }
+    );
+
+    window.addEventListener(
+      'beforeprint',
+      function () {
+        if (swirlFx) {
+          swirlFx.stop();
+        }
+        if (fastFx) {
+          fastFx.stop();
+        }
+        finishNewHero();
+      }
+    );
+
+  }
+
+});
